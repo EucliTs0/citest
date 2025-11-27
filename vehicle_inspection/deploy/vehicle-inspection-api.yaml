@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vehicle-inspection-api
+  labels:
+    app: vehicle-inspection-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: vehicle-inspection-api
+  template:
+    metadata:
+      labels:
+        app: vehicle-inspection-api
+    spec:
+      containers:
+      - name: vehicle-inspection-api
+        image: vehicle-inspection-api:latest
+        imagePullPolicy: Never
+        ports:
+          - containerPort: 8080
+        env:
+          - name: MODEL_URL
+            value: "http://tf-serving-service:8501/v1/models/car_damage_model:predict"
+          - name: UPLOAD_FOLDER
+            value: "/tmp/uploads"
+          - name: FLASK_ENV
+            value: "production"
+        resources:
+          requests:
+            cpu: "1"
+            memory: "512Mi"
+          limits:
+            cpu: "2"
+            memory: "2Gi"
+        volumeMounts:
+          - name: uploads
+            mountPath: /tmp/uploads
+      volumes:
+        - name: uploads
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vehicle-inspection-api-service
+spec:
+  selector:
+    app: vehicle-inspection-api
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: vehicle-inspection-api-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: vehicle-inspection-api
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
