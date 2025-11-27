@@ -1,7 +1,7 @@
 FROM python:3.11.14-slim as builder
 
-COPY requirements/service.txt requirements.txt
-COPY docker/service/gunicorn_conf.py /gunicorn_conf.py
+COPY vehicle_inspection/requirements/service.txt requirements.txt
+COPY vehicle_inspection/docker/service/gunicorn_conf.py /gunicorn_conf.py
 
 ENV PATH /venv/bin:$PATH
 

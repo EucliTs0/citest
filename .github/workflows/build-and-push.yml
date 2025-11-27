@@ -1,0 +1,38 @@
+name: Build and Push API Image
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "vehicle_inspection/service/**"
+      - "vehicle_inspection/docker/service/**"
+      - ".github/workflows/build-and-push.yml"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: ghcr.io/euclits0/vehicle-inspection-api
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build image
+        run: |
+          docker build \
+            -f vehicle_inspection/docker/service/Dockerfile \
+            -t $IMAGE_NAME:latest \
+            .
+
+      - name: Push image
+        run: |
+          docker push $IMAGE_NAME:latest
