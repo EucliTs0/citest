@@ -24,7 +24,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t $IMAGE_NAME:latest .
+          docker build --pull --no-cache -f docker/service/Dockerfile -t $IMAGE_NAME:latest .
+        working-directory: ./vehicle_inspection
 
       - name: Push Docker image
         run: |
