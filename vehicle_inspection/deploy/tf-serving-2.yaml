@@ -17,7 +17,7 @@ spec:
       # Init container copies the model out of the model image into the shared emptyDir volume
       initContainers:
         - name: load-model
-          image: car-damage-model:1                # <-- the image you built above
+          image: car-damage-model:latest
           imagePullPolicy: IfNotPresent
           command: ["sh", "-c", "mkdir -p /models && cp -r /export/* /models/"]
           volumeMounts:

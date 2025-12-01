@@ -3,6 +3,7 @@ MYPY_TARGET ?= generator
 LINT_TARGET ?= generator tests/unit_test
 TEST_TARGET ?= tests/unit_test
 SERVICE_IMAGE := vehicle-inspection-api:$(IMAGE_REVISION)
+MODEL_IMAGE := car-damage-model:$(IMAGE_REVISION)
 TEST_IMAGE := service-test:$(IMAGE_REVISION)
 VOLUME_SRC := "${PWD}/service:/service:ro"
 VOLUME_TEST := "${PWD}/tests:/tests:ro"
@@ -16,6 +17,10 @@ GID := $(shell id -g)
 service_image:
 	docker build --pull --no-cache -f docker/service/Dockerfile \
 		-t $(SERVICE_IMAGE) .
+
+model_image:
+	docker build --pull --no-cache -f docker/model/Dockerfile \
+		-t $(MODEL_IMAGE) .
 
 service_run:
 	docker run -p 8080:8080 \
